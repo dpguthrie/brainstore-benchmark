@@ -63,7 +63,6 @@ python load_langsmith.py -n 5
 ```
 
 **Common Options:**
-- `--flatten` - Flatten trace hierarchy (removes parent-child relationships)
 - `-n, --iterations` - Number of times to replay traces (default: 1)
 - `-l, --limit` - Limit number of trace rows to load
 
