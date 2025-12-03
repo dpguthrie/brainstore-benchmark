@@ -10,7 +10,7 @@ A head-to-head benchmark comparing trace ingestion performance between **Braintr
 
 If using `uv`:
 ```bash
-uv pip install .
+uv sync
 ```
 
 If not using `uv`:
@@ -39,8 +39,6 @@ This will:
 - Download 768MB of compressed trace data from a public S3 bucket
 - Extract to `data/big_traces.jsonl` (1.7GB uncompressed)
 - Clean up temporary files
-
-**No AWS credentials required** - the data is publicly accessible via HTTP.
 
 ### 3. Run Benchmarks
 
