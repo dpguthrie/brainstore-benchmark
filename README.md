@@ -4,7 +4,30 @@ A head-to-head benchmark comparing trace ingestion performance between **Braintr
 
 ## Getting Started
 
-### 1. Prepare Test Data
+### 1. Installation & Setup
+
+**Install dependencies:**
+
+If using `uv`:
+```bash
+uv pip install .
+```
+
+If not using `uv`:
+```bash
+pip install .
+```
+
+**Configure API keys:**
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and update the following:
+- `BRAINTRUST_API_KEY` - Your Braintrust API key
+- `LANGSMITH_API_KEY` - Your LangSmith API key
+
+### 2. Prepare Test Data
 
 **Before running any benchmark scripts**, download and prepare the trace data:
 
@@ -19,7 +42,7 @@ This will:
 
 **No AWS credentials required** - the data is publicly accessible via HTTP.
 
-### 2. Run Benchmarks
+### 3. Run Benchmarks
 
 Both scripts support the same command-line arguments for consistent testing:
 
@@ -27,9 +50,6 @@ Both scripts support the same command-line arguments for consistent testing:
 ```bash
 # Load all traces once
 python load_braintrust.py
-
-# Load first 100 traces with flattened structure
-python load_braintrust.py --flatten -l 100
 
 # Run 5 iterations for performance testing
 python load_braintrust.py -n 5
@@ -40,9 +60,6 @@ python load_braintrust.py -n 5
 # Load all traces once
 python load_langsmith.py
 
-# Load first 100 traces with flattened structure
-python load_langsmith.py --flatten -l 100
-
 # Run 5 iterations for performance testing
 python load_langsmith.py -n 5
 ```
@@ -51,10 +68,6 @@ python load_langsmith.py -n 5
 - `--flatten` - Flatten trace hierarchy (removes parent-child relationships)
 - `-n, --iterations` - Number of times to replay traces (default: 1)
 - `-l, --limit` - Limit number of trace rows to load
-
-**Note:** Set up your API keys in `.env` before running:
-- `BRAINTRUST_API_KEY` for Braintrust
-- `LANGCHAIN_API_KEY` for LangSmith
 
 ## What This Benchmark Tests
 
