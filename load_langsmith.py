@@ -50,7 +50,6 @@ logger = logging.getLogger(__name__)
 TRACE_FILE = "data/big_traces.jsonl"
 ROOT_RUN_NAME = "Chat Pipeline"
 RUN_TYPE = "chain"
-FLUSH_BATCH_SIZE = 10  # Flush every N traces to avoid large payload timeouts
 
 
 def log_child_run(
@@ -172,7 +171,6 @@ if __name__ == "__main__":
     # Replay traces for the specified number of iterations
     for iteration in range(args.iterations):
         iter_start = time.time()
-        pipelines = []
 
         for idx, root in enumerate(roots):
             row = tree[root]
@@ -191,16 +189,9 @@ if __name__ == "__main__":
 
             pipeline.end()
             pipeline.post()
-            pipelines.append(pipeline)
 
-            # Flush periodically to avoid large payload timeouts
-            if (idx + 1) % FLUSH_BATCH_SIZE == 0:
-                client.flush()
-                pipelines.clear()
-
-        # Final flush for any remaining runs in this iteration
-        if pipelines:
-            client.flush()
+        # Flush once at the end of iteration
+        client.flush()
 
         logger.info(
             f"Iteration {iteration+1}/{args.iterations} completed in {time.time() - iter_start:.2f}s"
