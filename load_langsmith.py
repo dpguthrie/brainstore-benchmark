@@ -111,6 +111,13 @@ if __name__ == "__main__":
         default=None,
         help="Limit number of trace rows to load (default: load all)",
     )
+    parser.add_argument(
+        "-b",
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Flush after every N traces (default: flush once at end)",
+    )
     args = parser.parse_args()
 
     # Validate arguments
@@ -118,6 +125,8 @@ if __name__ == "__main__":
         parser.error("iterations must be at least 1")
     if args.limit is not None and args.limit < 1:
         parser.error("limit must be at least 1")
+    if args.batch_size is not None and args.batch_size < 1:
+        parser.error("batch-size must be at least 1")
 
     # Configure LangSmith endpoint and enable tracing
     os.environ["LANGCHAIN_ENDPOINT"] = "https://api.smith.langchain.com"
@@ -189,6 +198,10 @@ if __name__ == "__main__":
 
             pipeline.end()
             pipeline.post()
+
+            # Flush periodically if batch size is specified
+            if args.batch_size and (idx + 1) % args.batch_size == 0:
+                client.flush()
 
         # Flush once at the end of iteration
         client.flush()

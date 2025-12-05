@@ -112,6 +112,13 @@ if __name__ == "__main__":
         default=None,
         help="Limit number of trace rows to load (default: load all)",
     )
+    parser.add_argument(
+        "-b",
+        "--batch-size",
+        type=int,
+        default=None,
+        help="Flush after every N traces (default: flush once at end)",
+    )
     args = parser.parse_args()
 
     # Validate arguments
@@ -119,6 +126,8 @@ if __name__ == "__main__":
         parser.error("iterations must be at least 1")
     if args.limit is not None and args.limit < 1:
         parser.error("limit must be at least 1")
+    if args.batch_size is not None and args.batch_size < 1:
+        parser.error("batch-size must be at least 1")
 
     # Login once at startup for better performance
     try:
@@ -176,7 +185,7 @@ if __name__ == "__main__":
     # Replay traces for the specified number of iterations
     for i in range(args.iterations):
         iter_start = time.time()
-        for root in roots:
+        for idx, root in enumerate(roots):
             row = tree[root]
             with bt_logger.start_span(ROOT_SPAN_NAME) as span:
                 # Set model metadata for tracking purposes
@@ -188,6 +197,10 @@ if __name__ == "__main__":
                 # Recursively log all child spans
                 for child_id in children.get(row["span_id"], []):
                     log_child_span(span, child_id, children, tree)
+
+            # Flush periodically if batch size is specified
+            if args.batch_size and (idx + 1) % args.batch_size == 0:
+                bt_logger.flush()
 
         logger.info(
             f"Iteration {i + 1}/{args.iterations} completed in {time.time() - iter_start:.2f}s"
